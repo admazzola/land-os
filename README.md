@@ -1,6 +1,6 @@
-# 🎨 Solidity Template Monorepo 
+# 🎨 Land OS
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/0f749563-48cc-40bf-beda-52573fd31cef/deploy-status)](https://app.netlify.com/sites/nifty-options/deploys)
+ 
  
 # 🏄‍♂️ Quick Start (contracts)
 
