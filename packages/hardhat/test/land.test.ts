@@ -56,7 +56,7 @@ describe('LandOS', function () {
   let miner: Signer
    
 
-  beforeEach(async () => {
+  before(async () => {
     const result = await setup()
     mineableToken = result.mineableToken
     landOS = result.landOS
@@ -74,6 +74,17 @@ describe('LandOS', function () {
       const tokenAddress = mineableToken.address
       tokenAddress.should.exist
     })
+
+
+    it('should mint some tokens', async () => {
+        let testMint = await mineableToken.connect(miner).testMint( 0 );
+
+        let minerAddress = await miner.getAddress()
+ 
+        let newBalance = await mineableToken.balanceOf(minerAddress)
+
+        newBalance.should.eql(5000000000);
+      })
   })
 
   describe('LandOS', () => {
@@ -81,6 +92,45 @@ describe('LandOS', function () {
       const nftAddress = landOS.address
       nftAddress.should.exist
     })
+
+    it('should be able to mint land', async () => {
+
+        let amount = 1000000000
+
+        let tokenId = 0;
+
+        console.log('amount',amount )
+
+        let calldata = ethers.utils.defaultAbiCoder.encode([ "uint256" ], [ tokenId ]);
+        
+        console.log('calldata',calldata)
+
+        let testMint = await mineableToken
+        .connect(miner)
+        .approveAndCall( landOS.address, amount, calldata );
+
+        console.log(testMint)
+
+      })
+
+
+      it('should not be able to mint land past current supply', async () => {
+
+        let amount = 1000000000
+
+        let tokenId = 2; 
+        
+        let calldata = ethers.utils.defaultAbiCoder.encode([ "uint256" ], [ tokenId ]);
+        
+        
+        let testMint = await mineableToken
+        .connect(miner)
+        .approveAndCall( landOS.address, amount, calldata )
+        .should.be.reverted  
+
+      })
+
+
   })
 
    

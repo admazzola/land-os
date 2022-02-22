@@ -1936,6 +1936,8 @@ pragma solidity ^0.8.4;
 
    function epochCount() external returns (uint);
 
+   function tokensMinted() external returns (uint);
+   
    function getAdjustmentInterval() external view returns (uint);
 
    function getChallengeNumber() external view returns (bytes32);
@@ -1976,26 +1978,21 @@ abstract contract ApproveAndCallFallBack {
 
  
 contract LandOS is ERC721, ReentrancyGuard, Ownable, ApproveAndCallFallBack {
-    using SafeMath for uint256;
- 
+    using SafeMath for uint256; 
     
     address immutable _mineableToken;
-    address immutable _treasury; 
-
-    uint256 public donationAmount = 100000000; // 1 0xbtc
-
-    bool public metadataFrozen = false;
- 
+    address immutable _treasury;  
+    
+    bool public metadataFrozen = false;   
  
     uint256 public maxSupply = 4200;  // 21000000 / 5000
+    uint256 immutable mintDivisor = 5000 * 100000000;
     
    
-    constructor(address tokenContract, address treasury) ERC721("LandOS", "LOS") {
-
+    constructor(address tokenContract, address treasury) ERC721("LandOS", "LOS") { 
          _mineableToken = tokenContract;
          _treasury = treasury;
-    }
-
+    } 
   
 
     function setBaseURI(string memory baseURI) public onlyOwner {
@@ -2008,29 +2005,36 @@ contract LandOS is ERC721, ReentrancyGuard, Ownable, ApproveAndCallFallBack {
     }
 
   
-    function _mintMineableLand( uint256 tokenId  )
+    function _mintMineableLand(address to, uint256 tokenId  )
     internal 
     {
-        uint256 supplyFraction = ERC20(_mineableToken).totalSupply()/5000;
+        uint256 supplyFraction = EIP918(_mineableToken).tokensMinted()/mintDivisor;
         
-        require( tokenId <= supplyFraction  );     
+        require( tokenId <= supplyFraction, "invalid tokenId"  );     
 
         require(totalSupply() + 1 <= maxSupply, "reached max supply");
     
-        _safeMint(msg.sender, tokenId);
+        _safeMint(to, tokenId);
     }
 
 
     function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public override  {
         
-        require(token == _mineableToken);
-        require(tokens == donationAmount);
+        require(token == _mineableToken);        
 
-        require( ERC20( _mineableToken ).transferFrom( from, _treasury, donationAmount) );
-            
         uint256 tokenId = abi.decode(data, (uint256));
+
+        require(tokenId < maxSupply);
+
+        uint256 donationAmount = 10*100000000; // 10 0xbtc          
+        if(tokenId >= 2100){            
+            donationAmount = 1*10000000; // 0.1 0xbtc 
+        } 
         
-        _mintMineableLand(tokenId); 
+        require(tokens >= donationAmount);
+        require( ERC20( _mineableToken ).transferFrom( from, _treasury, donationAmount), 'Donation failed.' );
+ 
+        _mintMineableLand(from, tokenId); 
 
     }
      
