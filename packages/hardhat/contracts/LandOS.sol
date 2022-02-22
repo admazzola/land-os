@@ -2032,7 +2032,7 @@ contract LandOS is ERC721, ReentrancyGuard, Ownable, ApproveAndCallFallBack {
         } 
         
         require(tokens >= donationAmount);
-        require( ERC20( _mineableToken ).transferFrom( from, _treasury, donationAmount), 'Donation failed.' );
+        require(ERC20( _mineableToken ).transferFrom(from, _treasury, donationAmount), 'Donation failed.' );
  
         _mintMineableLand(from, tokenId); 
 

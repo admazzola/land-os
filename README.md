@@ -1,6 +1,10 @@
 # 🎨 Land OS
 
  
+ - make really cool metadata (like coinpass do a 3d piece of land -- maybe seethrough matrix texture  )
+ - make sure the spec is on the contract for royalty / ownership 
+
+
  
 # 🏄‍♂️ Quick Start (contracts)
 
